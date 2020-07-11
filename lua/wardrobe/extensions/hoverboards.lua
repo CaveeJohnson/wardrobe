@@ -1,3 +1,5 @@
+print("Wardrobe | Loaded Hoverboard extension!")
+
 if SERVER then return end
 wardrobe.hoverboards = {}
 
