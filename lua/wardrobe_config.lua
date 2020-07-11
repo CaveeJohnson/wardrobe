@@ -22,6 +22,7 @@ wardrobe.config.extensions = {
 	-- "pointshop",
 	-- "pointshop2",
 	-- "clockwork",
+	-- "hoverboards",
 }
 
 -- commandPrefix: Pattern to match the command prefix, [!|/] (the default) means ! or /
