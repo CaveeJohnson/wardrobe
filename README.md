@@ -1,5 +1,10 @@
 # Wardrobe
 
+## 1.6.0 BETA
+Now works for newer addons (2020-01 and up), woot!
+
+Selecting addons is also fixed (you should use the new menu, it's on by default now).
+
 ## The realtime clientside playermodel system
 
 Wardrobe is an addon for Garry's Mod which provides extended support for hotloading playermodels from the workshop. It allows any player to enter the URL of a workshop addon and become any model of that addon.

@@ -10,7 +10,7 @@ local function _loadExtensions(ext)
 	end
 end
 
-local newMenu = CreateClientConVar("wardrobe_useNewMenu", "0", true, true, "Should wardrobe be use the experimental new menu?")
+local newMenu = CreateClientConVar("wardrobe_useNewMenu", "1", true, true, "Should wardrobe be use the experimental new menu?")
 
 local function _load()
 	print("Loading wardrobe")

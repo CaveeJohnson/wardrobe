@@ -315,37 +315,90 @@ function wardrobe.gui.constructBrowser()
 	local h = f.html
 		h:Dock(FILL)
 		h:OpenURL(wardrobe.config.workshopDefaultUrl)
-		h:SetAllowLua(true)
+		-- h:SetAllowLua(true)
 
-		h:AddFunction("wardrobe", "selectAddon", function()
-			if h.addon then
-				wardrobe.getAddon(h.addon, function(_, _, _, mdls, meta)
+		do
+			local timerid = "WardrobeAddonHeuristics"
+			local compare_date = os.time({year = 2020, month = 1, day = 20, hour = 0, min = 0, sec = 0})
+
+			function h:addonSelectHeuristics(btn)
+				local addon = self.addon
+				btn:SetEnabled(false)
+				btn:SetText(L"Performing Steamworks heuristics, please wait...")
+
+				timer.Create(timerid, 10, 0, function()
+					if IsValid(btn) then
+						btn:SetText(L"Steamworks timed out, what the hell?!" .. " (" .. addon .. ")")
+					end
+				end)
+
+				steamworks.FileInfo(addon, function(data)
+					timer.Remove(timerid)
+					if not data or not IsValid(btn) then return end
+
+					local date = math.max(data.created or 0, data.updated or 0)
+					if date <= 1 then
+						date = math.huge
+					end
+
+					if data.error then
+						btn:SetText(L"Steamworks had an error: " .. tostring(data.error) .. " (" .. addon .. ")")
+					elseif date > compare_date then
+						btn:SetEnabled(true)
+						btn:SetText(L"Select Addon! Warning: new format, may be issues! " .. " (" .. addon .. ")")
+					else
+						btn:SetEnabled(true)
+						btn:SetText(L"Select Addon!" .. " (" .. addon .. ")")
+					end
+				end)
+			end
+
+			function h:OnFinishLoadingDocument(str)
+				local wsid = str
+				wsid = wsid:gsub("https?://steamcommunity%.com/sharedfiles/filedetails/%?id=", "")
+				wsid = wsid:gsub("&searchtext=.*", "")
+
+				wsid = tonumber(wsid or -1)
+				if not wsid or wsid <= 1e4 then
+					self.addon = nil
+
+					if IsValid(f.select) then
+						timer.Remove(timerid)
+						f.select:SetText(L"Please select an addon.")
+						f.select:SetEnabled(false)
+					end
+
+					return
+				end
+
+				self.addon = wsid
+				if IsValid(f.select) then
+					self:addonSelectHeuristics(f.select)
+				end
+			end
+		end
+
+	f.select = vgui.Create("DButton", f)
+	local b = f.select
+		b:Dock(BOTTOM)
+		b:SetHeight(24)
+		b:SetText(L"Please select an addon.")
+
+		function b:DoClick()
+			local wsid = h.addon
+
+			if wsid then
+				wardrobe.getAddon(wsid, function(_, _, _, mdls, meta)
 					if IsValid(wardrobe.gui.frame) then
-						wardrobe.gui.addNewModels(h.addon, mdls, meta)
+						wardrobe.gui.addNewModels(wsid, mdls, meta)
 					end
 				end, not wardrobe.showMetaLess:GetBool())
 
 				f:Close()
 				h:OpenURL(wardrobe.config.workshopDefaultUrl)
 				c.AddressBar:SetText(wardrobe.config.workshopDefaultUrl)
+				self:SetText(L"Please select an addon.")
 			end
-		end)
-
-		function h:OnFinishLoadingDocument(str)
-			local wsid = str
-			wsid = wsid:gsub("https?://steamcommunity%.com/sharedfiles/filedetails/%?id=", "")
-			wsid = wsid:gsub("&searchtext=.*", "")
-
-			wsid = tonumber(wsid or -1)
-			if not wsid or wsid <= 1 then return end
-
-			self.addon = wsid
-			self:RunJavascript(
-				[[document.getElementById("SubscribeItemOptionAdd").innerText = "Select Addon";]]
-			)
-			self:RunJavascript(
-				[[document.getElementById("SubscribeItemBtn").setAttribute("onclick", "wardrobe.selectAddon();");]]
-			)
 		end
 
 	c:SetHTML(h)
@@ -505,7 +558,7 @@ function wardrobe.gui.buildSelectionSheet(selector)
 
 			local c = function(path, name, hands)
 				l.handslookup[path] = hands
-				l:AddLine(id, name or "???", path, hands and L"Yes" or L"No")
+				l:AddLine(id or "id_gone", name or "???", path, hands and L"Yes" or L"No")
 			end
 			wardrobe.frontend.parseModels(md, meta, c)
 		end
@@ -1089,7 +1142,7 @@ hook.Add("Wardrobe_Notification", "wardrobe.gui", wardrobe.gui.notif)
 
 local icon = "icon64/wardrobe64.png" -- Thanks PAC
 	icon = file.Exists("materials/" .. icon, "GAME")
-	and not Material(icon):IsError() -- Some fucking moron served the 404 html in his fastdl
+	and not Material(icon):IsError() -- Some fucking moron served the 404 html in his fastdl but with a 200 status code
 	and icon
 	or "icon64/playermodel.png"
 

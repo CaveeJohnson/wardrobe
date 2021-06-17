@@ -198,13 +198,14 @@ function parserObj:alreadyMounted(checkAll)
 	return true
 end
 
-function gmaparser.open(path)
+function gmaparser.open(path, handle)
 	if gmaparser.cache[path] and gmaparser.cache[path]:isValid() then
 		return gmaparser.cache[path]
 	end
 
 	local f = file.Open(path, "rb", "GAME")
-	if not f then return nil, GMA_NOFILE end
+	if not (f or handle) then return nil, GMA_NOFILE end
+	f = f or handle
 
 	local identity = f:Read(4)
 	if identity ~= "GMAD" then

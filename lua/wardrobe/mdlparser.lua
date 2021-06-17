@@ -418,9 +418,9 @@ function mdlparser.isPlayerModel(f, sz)
 		return false, MDL_NOBONES
 	end
 
-	if not mdl.attachment_count or mdl.attachment_count == 0 then
-		return false, MDL_NOATTCH
-	end
+	-- if not mdl.attachment_count or mdl.attachment_count == 0 then
+	-- 	return false, MDL_NOATTCH
+	-- end
 
 	local att = mdl:getAttachments()
 	local found
@@ -433,9 +433,9 @@ function mdlparser.isPlayerModel(f, sz)
 		end
 	end
 
-	if not found then
-		return false, MDL_NOATTCH
-	end
+	-- if not found then
+	-- 	return false, MDL_NOATTCH
+	-- end
 
 	if not mdl.localanim_count or mdl.localanim_count == 0 then
 		return false, MDL_NOANIMS

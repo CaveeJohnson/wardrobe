@@ -38,40 +38,73 @@ end
 workshop.maxsize = wardrobe and wardrobe.config.maxFileSize or 0
 workshop.whitelist = wardrobe and wardrobe.config.whitelistIds or {}
 
-local function _fetch(wsid, fileInfo, validate, callback)
-	if not fileInfo or not fileInfo.fileid then
-		return workshop.err(wsid, WS_NOFILEINFO)
-	end
+local _fetch
+do
+	local compare_date = os.time({year = 2020, month = 1, day = 20, hour = 0, min = 0, sec = 0})
 
-	local maxsz = bit.lshift(workshop.maxsize, 20)
-
-	if math.floor(maxsz) > 0 and (fileInfo.size or 0) > maxsz and not workshop.whitelist[wsid] then
-		return workshop.err(wsid, WS_FILETOOBIG)
-	end
-
-	local ok, _err = validate(wsid, fileInfo)
-	if ok == false then
-		return workshop.err(wsid, _err or -1)
-	end
-
-	print("Workshop | Downloading", wsid)
-
-	steamworks.Download(fileInfo.fileid, true, function(path)
-		if not path then
-			return workshop.err(wsid, WS_DOWNLOADFAILED)
+	function _fetch(wsid, fileInfo, validate, callback)
+		if not fileInfo or not fileInfo.fileid then
+			return workshop.err(wsid, WS_NOFILEINFO)
 		end
 
-		if not file.Exists(path, "MOD") then
-			return workshop.err(wsid, WS_MISSINGFILE)
+		local maxsz = bit.lshift(workshop.maxsize, 20)
+
+		if math.floor(maxsz) > 0 and (fileInfo.size or 0) > maxsz and not workshop.whitelist[wsid] then
+			return workshop.err(wsid, WS_FILETOOBIG)
 		end
 
-		print("Workshop | Path:", path)
+		local ok, _err = validate(wsid, fileInfo)
+		if ok == false then
+			return workshop.err(wsid, _err or -1)
+		end
 
-		workshop.got[wsid] = true
-		workshop.reasons[wsid] = path
+		print("Workshop | Downloading", wsid)
 
-		callback(path, fileInfo)
-	end)
+		local date = math.max(fileInfo.created or 0, fileInfo.updated or 0)
+		if date <= 1 then
+			date = math.huge
+		end
+
+		if date > compare_date then
+			print("Workshop | New addon format, if workshop gives up (hangs on LOADING) then you should too")
+
+			steamworks.DownloadUGC(wsid, function(path, handle)
+				if not path then
+					return workshop.err(wsid, WS_DOWNLOADFAILED)
+				end
+
+				-- if not file.Exists(path, "MOD") then
+				-- 	return workshop.err(wsid, WS_MISSINGFILE)
+				-- end
+
+				print("Workshop | Path:", path)
+
+				workshop.got[wsid] = nil -- why? BECAUSE IT CANNOT BE REREAD AFTER HANDLE DIES, FUCKING GARBAGE
+				workshop.reasons[wsid] = path
+
+				callback(path, fileInfo, false, true, handle)
+			end)
+
+			return
+		end
+
+		steamworks.Download(fileInfo.fileid, true, function(path)
+			if not path then
+				return workshop.err(wsid, WS_DOWNLOADFAILED)
+			end
+
+			if not file.Exists(path, "MOD") then
+				return workshop.err(wsid, WS_MISSINGFILE)
+			end
+
+			print("Workshop | Path:", path)
+
+			workshop.got[wsid] = true
+			workshop.reasons[wsid] = path
+
+			callback(path, fileInfo, false, false)
+		end)
+	end
 end
 
 local function _getAddon(wsid, validate, callback)
@@ -130,28 +163,17 @@ local function _mount(wsid, info, path, post)
 	workshop.mounting[#workshop.mounting + 1] = {wsid, info, path, post}
 end
 
-local nextMount = 0
-local function _performMount()
-	if #workshop.mounting == 0 then
-		nextMount = CurTime() + 3
-		return
-	end
-
-	local tbl = table.remove(workshop.mounting, 1)
-	if #workshop.mounting == 0 then
-		workshop.currentQueueSize = 0
-	end
-
-	local gma = gmaparser and gmaparser.open(tbl[3])
+local function _mountInternal(wsid, info, path, post, handle)
+	local gma = gmaparser and gmaparser.open(path, handle)
 	if gma then pcall(gma.parse, gma) end
 
 	local t = SysTime()
 
 	local ok, files
 	if not (gma and gma:isValid() and gma:alreadyMounted(true)) then
-		local last_mod_delta = os.time() - (file.Time(tbl[3], "GAME") or 0)
-		file.Write(crashPath, "Addon: " .. tbl[1] .. ", Path: " .. tbl[3] .. "\nTime delta: " .. last_mod_delta)
-			ok, files = game.MountGMA(tbl[3])
+		local last_mod_delta = os.time() - (file.Time(path, "GAME") or 0)
+		file.Write(crashPath, "Addon: " .. wsid .. ", Path: " .. path .. "\nTime delta: " .. last_mod_delta)
+			ok, files = game.MountGMA(path)
 		timer.Simple(1, workshop.crashed) -- Let's be honest, if you crash within 1 second of mounting, I'm pretty sure we know what did you in
 	else
 		ok = true
@@ -162,16 +184,36 @@ local function _performMount()
 
 	local took = SysTime() - t
 
-	tbl[4](tbl[1], tbl[2], tbl[3], ok or false, files, took)
-	workshop.mounted[tbl[1]] = {ok or false, files, took}
+	post(wsid, info, path, ok or false, files, took, handle)
+	workshop.mounted[wsid] = {ok or false, files, took}
 
 	print("Workshop | Mount function for addon took " .. math.Round(took, 3) .. " seconds.")
-	nextMount = CurTime() + (took * 10) + 1
+
+	return took
 end
 
-hook.Add("Think", "workshop.mounting", function()
-	if CurTime() >= nextMount then _performMount() end
-end)
+do
+	local nextMount = 0
+
+	local function _performMount()
+		if #workshop.mounting == 0 then
+			nextMount = CurTime() + 3
+			return
+		end
+
+		local tbl = table.remove(workshop.mounting, 1)
+		if #workshop.mounting == 0 then
+			workshop.currentQueueSize = 0
+		end
+
+		took = _mountInternal(unpack(tbl))
+		nextMount = CurTime() + (took * 10) + 1
+	end
+
+	hook.Add("Think", "workshop.mounting", function()
+		if CurTime() >= nextMount then _performMount() end
+	end)
+end
 
 function workshop.get(wsid, validateinfo, validatefile, postmount)
 	validateinfo = validateinfo or IGNORE
@@ -181,11 +223,17 @@ function workshop.get(wsid, validateinfo, validatefile, postmount)
 	workshop.currentQueueSize = workshop.currentQueueSize + 1
 	print("Workshop | Attempting to get", wsid)
 
-	return _getAddon(wsid, validateinfo, function(path, info, passedBefore)
+	return _getAddon(wsid, validateinfo, function(path, info, passedBefore, newFormat, handle)
 		print("Workshop | Got, now validating", wsid)
-		local ok = validatefile(wsid, info, path, passedBefore)
+		local ok = validatefile(wsid, info, path, passedBefore, handle)
 		if ok ~= false then
-			_mount(wsid, info, path, postmount)
+			if newFormat then
+				print("Workshop | It's a new format addon, we've got to mount it now before that handle dies!")
+				workshop.currentQueueSize = workshop.currentQueueSize - 1
+				_mountInternal(wsid, info, path, postmount, handle)
+			else
+				_mount(wsid, info, path, postmount)
+			end
 		else
 			workshop.currentQueueSize = workshop.currentQueueSize - 1
 		end

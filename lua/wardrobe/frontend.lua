@@ -50,13 +50,16 @@ function wardrobe.frontend.setLanguage(id)
 end
 
 function wardrobe.frontend.makeRequest(wsid, model, hands)
+	print("makerequest1")
 	local re, m = hook.Run("Wardrobe_AccessAllowed", LocalPlayer(), wsid, model)
 	if re == false then return wardrobe.notif(m) end
 
+	print("makerequest2")
 	if wardrobe.nextRequest and wardrobe.nextRequest > CurTime() then
 		return wardrobe.notif(L"Requesting too fast!")
 	end
 
+	print("makerequest3")
 	wardrobe.requestModel(wsid, model, hands)
 	return true
 end

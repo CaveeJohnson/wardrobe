@@ -26,9 +26,9 @@ wardrobe.maxFileSize  = CreateClientConVar("wardrobe_maxfilesize",        "-1", 
 wardrobe.forceRetries = 33
 
 wardrobe.major = 1
-wardrobe.minor = 5
-wardrobe.patch = 1
-wardrobe.isBeta = false
+wardrobe.minor = 6
+wardrobe.patch = 0
+wardrobe.isBeta = true
 
 wardrobe.version = wardrobe.major .. "." .. wardrobe.minor .. "." .. wardrobe.patch
 if wardrobe.isBeta then
@@ -91,11 +91,11 @@ function wardrobe.getAddon(wsid, callback, ignoreMetaLess)
 			end
 		end,
 
-		function(_, info, path, done)
+		function(_, info, path, done, handle)
 			if hook.Run("Wardrobe_ValidateGMA", wsid, info, path, done) == false then return false end
 
 			if not done and not white then
-				local ok, err = gmamalicious.isGMAOkay(path, wardrobe.config.aggressive, wardrobe.config.maxFileSize)
+				local ok, err = gmamalicious.isGMAOkay(path, handle, wardrobe.config.aggressive, wardrobe.config.maxFileSize)
 				err = gmamalicious.reverseEnum[err] or gmaparser.reverseEnum[err] or err
 				if not ok then
 					wardrobe.err("Wardrobe | GMAM rejected addon with error code '" .. err .. "'.")
@@ -105,13 +105,13 @@ function wardrobe.getAddon(wsid, callback, ignoreMetaLess)
 			end
 		end,
 
-		function(_, info, path, mountok, files, took)
+		function(_, info, path, mountok, files, took, handle)
 			wardrobe.dbg("Wardrobe | Done loading addon", wsid)
 
 			if mountok then
 				hook.Run("Wardrobe_MountPassed", wsid, info, path, files, took)
 
-				local mdls, err = gmamalicious.getPlayerModels(path, not ignoreMetaLess) -- if mdls then err is metadata
+				local mdls, err = gmamalicious.getPlayerModels(path, handle, not ignoreMetaLess) -- if mdls then err is metadata
 				err = gmamalicious.reverseEnum[err] or mdlparser.reverseEnum[err] or err
 				if not mdls then return wardrobe.err("Wardrobe | Error getting player models from addon. (Are there any? code: " .. err .. ")") end
 
@@ -408,6 +408,7 @@ function wardrobe.requestSkin(n)
 end
 
 function wardrobe.requestModel(wsid, mdl, handsinfo)
+	print("Wardrobe | Sending request to the server...")
 	wardrobe.nextRequest = CurTime() + wardrobe.config.rateLimitTime + 1 -- + 1 so we don't get ignored by the server
 
 	if not mdl or mdl == "" then

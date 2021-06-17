@@ -25,8 +25,8 @@ function gmamalicious.preDownload(wsid, info)
 	return true
 end
 
-function gmamalicious.isGMAOkay(location, aggressive)
-	local gma, err = gmaparser.open(location)
+function gmamalicious.isGMAOkay(location, handle, aggressive)
+	local gma, err = gmaparser.open(location, handle)
 	if not gma then return nil, err end
 
 	pcall(gma.parse, gma)
@@ -76,8 +76,8 @@ local function _playermanagerMatch(s, ext)
 	return name, mdl:lower(), a, b
 end
 
-function gmamalicious.getPlayerModels(location, showMetaLess)
-	local gma, err = gmaparser.open(location)
+function gmamalicious.getPlayerModels(location, handle, showMetaLess)
+	local gma, err = gmaparser.open(location, handle)
 	if not gma then return nil, err end
 
 	pcall(gma.parse, gma)
