@@ -18,6 +18,7 @@ wardrobe.config.extensions = {
 	"darkrp",
 	-- "basewars",
 	-- "ulx",
+	-- "sam",
 	-- "serverguard",
 	-- "pointshop",
 	-- "pointshop2",
