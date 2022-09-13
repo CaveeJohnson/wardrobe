@@ -5,6 +5,12 @@ Now works for newer addons (2020-01 and up), woot!
 
 Selecting addons is also fixed (you should use the new menu, it's on by default now).
 
+## License
+
+Wardrobe is distributed under the MIT and Apache License (Version 2.0) licenses.
+
+See [COPYRIGHT](COPYRIGHT), [LICENSE-APACHE](LICENSE-APACHE) and [LICENSE-MIT](LICENSE-MIT) for details.
+
 ## The realtime clientside playermodel system
 
 Wardrobe is an addon for Garry's Mod which provides extended support for hotloading playermodels from the workshop. It allows any player to enter the URL of a workshop addon and become any model of that addon.
@@ -36,9 +42,6 @@ If you want to try it out before buying, feel free to join our official server: 
 * Drag the folder into ```garrysmod/addons```.
 * Edit ```garrysmod/addons/wardrobe/wardrobe_config.lua``` to your own liking.
 * Restart the server.
-
-## Support
-This addon will be updated to work for every Garry's Mod update. If you have any issues or feedback, feel free to open a support ticket.
 
 ## For developers
 Visit [this page](http://hexahedron.pw/wardrobe.html) for a rundown on what is avaiable in each state.
