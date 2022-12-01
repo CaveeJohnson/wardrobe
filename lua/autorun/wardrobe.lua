@@ -10,8 +10,6 @@ local function _loadExtensions(ext)
 	end
 end
 
-local newMenu = CreateClientConVar("wardrobe_useNewMenu", "1", true, true, "Should wardrobe be use the experimental new menu?")
-
 local function _load()
 	print("Loading wardrobe")
 
@@ -33,7 +31,6 @@ local function _load()
 
 		AddCSLuaFile("wardrobe/frontend.lua")
 		AddCSLuaFile("wardrobe/wardrobegui.lua")
-		AddCSLuaFile("wardrobe/wardrobegui_v2.lua")
 		AddCSLuaFile("wardrobe/preview.lua")
 
 		resource.AddSingleFile("materials/icon64/wardrobe64.png")
@@ -53,11 +50,7 @@ local function _load()
 
 		include("wardrobe/frontend.lua")
 
-		if newMenu:GetBool() then
-			include("wardrobe/wardrobegui_v2.lua")
-		else
-			include("wardrobe/wardrobegui.lua")
-		end
+		include("wardrobe/wardrobegui.lua")
 
 		include("wardrobe/preview.lua")
 
@@ -88,4 +81,3 @@ end
 _load()
 
 concommand.Add("wardrobe_reload", _load)
-cvars.AddChangeCallback("wardrobe_useNewMenu", _load, "wardrobe")
