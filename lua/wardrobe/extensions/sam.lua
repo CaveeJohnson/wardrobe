@@ -6,7 +6,7 @@ print("Wardrobe | Loading SAM extension!")
 
 sam.command.set_category("Wardrobe")
 
---Added Permission to only allow certain groups to use Wardrobe
+--Added Permission to SAM to allow only certain groups to use Wardrobe
 sam.permissions.add("wardrobe", "Wardrobe", "admin")
 
 hook.Add("Wardrobe_AccessAllowed", "extensions.sam", function(ply)
