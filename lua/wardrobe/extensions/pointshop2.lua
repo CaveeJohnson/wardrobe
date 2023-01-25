@@ -53,6 +53,8 @@ if SERVER then
 			local str = "You have purchased a new costume for " .. amt .. " " .. wardrobe.config.pointsName .. "."
 			ply:SendLua([[notification.AddLegacy("]] .. str .. [[", NOTIFY_HINT, 3)]])
 
+			hook.Run("Wardrobe_PurchasedModel", ply, wsid, mdl, amt)
+
 			if wardrobe.config.saveOwnership then
 				file.Append("wardrobe_pointshop/" .. ply:SteamID64() .. ".dat", mdl .. "\n")
 			end
