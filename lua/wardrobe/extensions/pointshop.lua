@@ -36,6 +36,8 @@ if SERVER then
 			ply:PS_TakePoints(amt)
 			ply:PS_Notify("You have purchased a new costume for ", amt, " ", wardrobe.config.pointsName, ".")
 
+			hook.Run("Wardrobe_PurchasedModel", ply, wsid, mdl, amt)
+
 			if wardrobe.config.saveOwnership then
 				file.Append("wardrobe_pointshop/" .. ply:SteamID64() .. ".dat", mdl .. "\n")
 			end
