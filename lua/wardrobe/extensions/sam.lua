@@ -6,6 +6,15 @@ print("Wardrobe | Loading SAM extension!")
 
 sam.command.set_category("Wardrobe")
 
+--Added Permission to SAM to allow only certain groups to use Wardrobe
+sam.permissions.add("wardrobe", "Wardrobe", "admin")
+
+hook.Add("Wardrobe_AccessAllowed", "extensions.sam", function(ply)
+	if not ply:HasPermission("wardrobe") then
+		return false, "No access! (Wrong usergroup)"
+	end
+end)
+
 sam.command.new("forcewardrobe")
 	:Help("Force a player to wear a chosen model from a specified addon.")
 	:SetPermission("forcewardrobe", "superadmin")
