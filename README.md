@@ -24,7 +24,7 @@ If you want to try it out before buying, feel free to join our official server: 
 
 ## Features
 
-* Support for 9 languages out the box! (English, French, Russian, Dutch, German, Spanish, Norwegian, Finnish, Swedish)
+* Support for 10 languages out the box! (English, French, Russian, Ukrainian, Dutch, German, Spanish, Norwegian, Finnish, Swedish)
 * Reduces download times and increases player retention.
 * Extensive developer support.
 * Support for ULX usergroups, DarkRP jobs and BaseWars raids.

@@ -13,6 +13,7 @@ wardrobe.language.available = {
 	norwegian = "no",
 	finnish   = "fi",
 	swedish   = "se",
+	ukrainian = "ua",
 }
 
 if file.Exists(LANGUAGE_FILE, "DATA") then
@@ -491,6 +492,57 @@ wardrobe.language.lookup.swedish = {
 	["Workshop: Idle"                        ] = "Workshop: Viloläge",
 	["Workshop: Working..."                  ] = "Workshop: Arbetar...",
 	Yes                                        = "Ja"
+}
+
+wardrobe.language.lookup.ukrainian = {
+	["Clear model list"                      ] = "Очистити список моделей",
+	["Copy Model"                            ] = "Скопіювати модель",
+	["Copy SteamID"                          ] = "Скопіювати SteamID",
+	["Copy Workshop ID"                      ] = "Скопіювати Workshop ID",
+	["Disable Autoload"                      ] = "Вимкнути автозавантаження",
+	["Disable wardrobe"                      ] = "Вимкнути Wardrobe",
+	["Don't Load Legs"                       ] = "Не завантажувати ноги",
+	["Enable Autoload"                       ] = "Увімкнути автозавантаження",
+	["Enable wardrobe"                       ] = "Увімкнути Wardrobe",
+	["Hands?"                                ] = "Руки?",
+	["Hide Unlikely"                         ] = "Сховати \"Навряд чи\"",
+	["Ignore addon"                          ] = "Ігнорувати аддон",
+	["Ignore model"                          ] = "Ігнорувати модель",
+	["Ignore player"                         ] = "Ігнорувати гравця",
+	Info                                       = "Інфо",
+	["Load Legs"                             ] = "Завантажувати ноги",
+	Name                                       = "Ім'я",
+	No                                         = "Ні",
+	["No access! (Wrong job)"                ] = "Немає доступу! (Неправильна робота)",
+	["No access! (Wrong usergroup)"          ] = "Немає доступу! (Неправильна група користувача)",
+	["Open workshop"                         ] = "Відкрити майстерню",
+	Path                                       = "Шлях",
+	Preview                                    = "Попередній вигляд",
+	Refresh                                    = "Оновити",
+	["Remove Selected"                       ] = "Видалити обране",
+	Request                                    = "Запросити",
+	["Request Model"                         ] = "Запросити модель",
+	["Requesting too fast!"                  ] = "Дуже часті запити!",
+	["Reset Model"                           ] = "Скинути модель",
+	["See Everyone"                          ] = "Показувати усіх",
+	["See Friends only"                      ] = "Показувати лише друзів",
+	["Show Unlikely"                         ] = "Показувати \"Навряд чи\"",
+	Skin                                       = "Скін",
+	SteamID                                    = "SteamID",
+	["This addon is not on the whitelist!"   ] = "Цього аддона немає в білому списку!",
+	["This model is for specific users only!"] = "Ця модель доступна лише конкретним гравцям!",
+	Type                                       = "Тип",
+	Wardrobe                                   = "Wardrobe",
+	["Wardrobe - Addon Browser"              ] = "Wardrobe - Браузер аддонів",
+	["Wardrobe - Blacklist"                  ] = "Wardrobe - Чорний список",
+	["Wardrobe - Help"                       ] = "Wardrobe - Допомога",
+	["Wardrobe - Main Menu"                  ] = "Wardrobe - Головне меню",
+	["Wardrobe - Preview"                    ] = "Wardrobe - Попередній вигляд",
+	["Wardrobe - Settings"                   ] = "Wardrobe - Налаштування",
+	["Workshop ID"                           ] = "Workshop ID",
+	["Workshop: Idle"                        ] = "Workshop: Відпочиває",
+	["Workshop: Working..."                  ] = "Workshop: Працює...",
+	Yes                                        = "Так"
 }
 
 wardrobe.language.generate = wardrobe.language.lookup.english or {}
